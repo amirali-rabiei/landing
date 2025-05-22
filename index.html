@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>صفحه لندینگ ساده</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background: #f6f6f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+      color: #333;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 10px 20px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      margin-top: 2rem;
+      display: none;
+    }
+    .reset-btn {
+      margin-top: 1rem;
+      background: #6c757d;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="title">لطفا اطلاعات خود را وارد کنید</h1>
+    <form id="infoForm">
+      <input type="text" id="name" placeholder="نام" required>
+      <select id="gender">
+        <option value="">انتخاب جنسیت</option>
+        <option value="male">مذکر</option>
+        <option value="female">مونث</option>
+      </select>
+      <input type="date" id="dob" required>
+      <button type="submit">ارسال</button>
+    </form>
+
+    <div class="result" id="result">
+      <p id="message">پیام شما آماده است!</p>
+      <audio id="audio" controls>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
+        مرورگر شما از پخش صوت پشتیبانی نمی‌کند.
+      </audio>
+      <button class="reset-btn" onclick="resetForm()">...</button>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('infoForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // لینک خارجی در تب جدید باز شود
+      window.open("https://example.com", '_blank');
+
+      // نمایش پیام و صوت
+      document.getElementById('infoForm').style.display = 'none';
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('audio').play();
+      document.getElementById('title').style.display = 'none';
+    });
+
+    function resetForm() {
+      document.getElementById('infoForm').reset();
+      document.getElementById('infoForm').style.display = 'block';
+      document.getElementById('result').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
