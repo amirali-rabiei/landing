@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>صفحه لندینگ ساده</title>
   <style>
     body {
       margin: 0;
@@ -56,12 +56,23 @@
       margin-top: 1rem;
       background: #6c757d;
     }
+    #infoForm[disabled] {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    #permissionMessage {
+      display: none;
+      color: red;
+      margin-top: 1rem;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1 id="title">لطفا اطلاعات خود را وارد کنید</h1>
-    <form id="infoForm">
+    <p id="permissionMessage">لطفا ابتدا اجازه نمایش نوتیفیکیشن‌ها را بدهید.</p>
+    <button id="requestPermissionBtn">اجازه دادن به نوتیفیکیشن</button>
+    <form id="infoForm" disabled>
       <input type="text" id="name" placeholder="نام" required>
       <select id="gender">
         <option value="">انتخاب جنسیت</option>
@@ -83,15 +94,38 @@
   </div>
 
   <script>
+    const infoForm = document.getElementById('infoForm');
+    const permissionMessage = document.getElementById('permissionMessage');
+    const requestPermissionBtn = document.getElementById('requestPermissionBtn');
+
     window.addEventListener('load', () => {
+      checkPermission();
       if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-        Notification.requestPermission().then(permission => {
-          if (permission === 'granted') {
-            console.log('اجازه نوتیفیکیشن دریافت شد');
-          }
-        });
+        permissionMessage.style.display = 'block';
+        requestPermissionBtn.style.display = 'block';
       }
     });
+
+    requestPermissionBtn.addEventListener('click', () => {
+      Notification.requestPermission().then(permission => {
+        checkPermission();
+        if (permission === 'granted') {
+          console.log('اجازه نوتیفیکیشن دریافت شد');
+        }
+      });
+    });
+
+    function checkPermission() {
+      if (Notification.permission === 'granted') {
+        infoForm.removeAttribute('disabled');
+        permissionMessage.style.display = 'none';
+        requestPermissionBtn.style.display = 'none';
+      } else {
+        infoForm.setAttribute('disabled', 'true');
+        permissionMessage.style.display = 'block';
+        requestPermissionBtn.style.display = 'block';
+      }
+    }
 
     document.getElementById('infoForm').addEventListener('submit', function(e) {
       e.preventDefault();
@@ -99,9 +133,9 @@
       if (Notification.permission === 'granted') {
         const notification = new Notification('عضویت موفقیت‌آمیز!', {
           body: 'برای مشاهده جزئیات بیشتر کلیک کنید.',
-          icon: 'https://via.placeholder.com/64', 
+          icon: 'https://via.placeholder.com/64',
           data: { url: 'https://example.com' },
-          requireInteraction: true 
+          requireInteraction: true
         });
 
         notification.onclick = function() {
@@ -115,18 +149,18 @@
               popup.close();
             }, 10000);
           }
-          notification.close(); 
+          notification.close();
         };
+
+        window.open('https://example.com', '_blank');
+
+        document.getElementById('infoForm').style.display = 'none';
+        document.getElementById('result').style.display = 'block';
+        document.getElementById('audio').play();
+        document.getElementById('title').style.display = 'none';
       } else {
         alert('لطفا اجازه نمایش نوتیفیکیشن‌ها را بدهید.');
       }
-
-      window.open('https://example.com', '_blank');
-
-      document.getElementById('infoForm').style.display = 'none';
-      document.getElementById('result').style.display = 'block';
-      document.getElementById('audio').play();
-      document.getElementById('title').style.display = 'none';
     });
 
     function resetForm() {
@@ -134,6 +168,7 @@
       document.getElementById('infoForm').style.display = 'block';
       document.getElementById('result').style.display = 'none';
       document.getElementById('title').style.display = 'block';
+      checkPermission(); 
     }
   </script>
 </body>
