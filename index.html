@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>صفحه لندینگ ساده</title>
+  <title>Document</title>
   <style>
     body {
       margin: 0;
@@ -78,18 +78,51 @@
         <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
         مرورگر شما از پخش صوت پشتیبانی نمی‌کند.
       </audio>
-      <button class="reset-btn" onclick="resetForm()">...</button>
+      <button class="reset-btn" onclick="resetForm()">بازنشانی</button>
     </div>
   </div>
 
   <script>
+    window.addEventListener('load', () => {
+      if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            console.log('اجازه نوتیفیکیشن دریافت شد');
+          }
+        });
+      }
+    });
+
     document.getElementById('infoForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
-      // لینک خارجی در تب جدید باز شود
-      window.open("https://example.com", '_blank');
+      if (Notification.permission === 'granted') {
+        const notification = new Notification('عضویت موفقیت‌آمیز!', {
+          body: 'برای مشاهده جزئیات بیشتر کلیک کنید.',
+          icon: 'https://via.placeholder.com/64', 
+          data: { url: 'https://example.com' },
+          requireInteraction: true 
+        });
 
-      // نمایش پیام و صوت
+        notification.onclick = function() {
+          const popup = window.open(
+            notification.data.url,
+            'popupWindow',
+            'width=600,height=400,toolbar=no,menubar=no,location=no,status=no'
+          );
+          if (popup) {
+            setTimeout(() => {
+              popup.close();
+            }, 10000);
+          }
+          notification.close(); 
+        };
+      } else {
+        alert('لطفا اجازه نمایش نوتیفیکیشن‌ها را بدهید.');
+      }
+
+      window.open('https://example.com', '_blank');
+
       document.getElementById('infoForm').style.display = 'none';
       document.getElementById('result').style.display = 'block';
       document.getElementById('audio').play();
@@ -100,6 +133,7 @@
       document.getElementById('infoForm').reset();
       document.getElementById('infoForm').style.display = 'block';
       document.getElementById('result').style.display = 'none';
+      document.getElementById('title').style.display = 'block';
     }
   </script>
 </body>
