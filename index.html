@@ -13,47 +13,52 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
+      box-sizing: border-box;
     }
     .container {
       background: white;
-      padding: 2rem;
+      padding: 1.5rem;
       border-radius: 12px;
       box-shadow: 0 0 20px rgba(0,0,0,0.1);
-      max-width: 400px;
+      max-width: 90%;
       width: 100%;
       text-align: center;
+      box-sizing: border-box;
     }
     h1 {
-      margin-bottom: 1.5rem;
-      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
       color: #333;
     }
     input, select {
       width: 100%;
-      padding: 10px;
-      margin: 8px 0;
+      padding: 8px;
+      margin: 6px 0;
       border: 1px solid #ccc;
       border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 0.9rem;
     }
     button {
-      margin-top: 1rem;
-      padding: 10px 20px;
+      margin-top: 0.8rem;
+      padding: 8px 16px;
       border: none;
       background-color: #007bff;
       color: white;
       border-radius: 6px;
       cursor: pointer;
+      font-size: 0.9rem;
     }
     button:hover {
       background-color: #0056b3;
     }
     .result {
-      margin-top: 2rem;
+      margin-top: 1.5rem;
       display: none;
     }
     .reset-btn {
-      margin-top: 1rem;
+      margin-top: 0.8rem;
       background: #6c757d;
     }
     #infoForm[disabled] {
@@ -63,14 +68,34 @@
     #permissionMessage {
       display: none;
       color: red;
-      margin-top: 1rem;
+      margin-top: 0.8rem;
+      font-size: 0.9rem;
+    }
+    #requestPermissionBtn {
+      background-color: #28a745;
+    }
+    #requestPermissionBtn:hover {
+      background-color: #218838;
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 1rem;
+        max-width: 95%;
+      }
+      h1 {
+        font-size: 1rem;
+      }
+      input, select, button {
+        font-size: 0.8rem;
+        padding: 6px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1 id="title">لطفا اطلاعات خود را وارد کنید</h1>
-    <p id="permissionMessage">لطفا ابتدا اجازه نمایش نوتیفیکیشن‌ها را بدهید.</p>
+    <p id="permissionMessage">برای ادامه، لطفا اجازه نمایش نوتیفیکیشن‌ها را بدهید.</p>
     <button id="requestPermissionBtn">اجازه دادن به نوتیفیکیشن</button>
     <form id="infoForm" disabled>
       <input type="text" id="name" placeholder="نام" required>
@@ -98,6 +123,7 @@
     const permissionMessage = document.getElementById('permissionMessage');
     const requestPermissionBtn = document.getElementById('requestPermissionBtn');
 
+    // بررسی اولیه اجازه نوتیفیکیشن
     window.addEventListener('load', () => {
       checkPermission();
       if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
@@ -106,15 +132,19 @@
       }
     });
 
+    // دکمه درخواست اجازه نوتیفیکیشن
     requestPermissionBtn.addEventListener('click', () => {
       Notification.requestPermission().then(permission => {
         checkPermission();
         if (permission === 'granted') {
           console.log('اجازه نوتیفیکیشن دریافت شد');
+        } else if (permission === 'denied') {
+          alert('شما اجازه نوتیفیکیشن را رد کردید. برای ادامه، لطفا اجازه را فعال کنید.');
         }
       });
     });
 
+    // تابع بررسی اجازه و فعال/غیرفعال کردن فرم
     function checkPermission() {
       if (Notification.permission === 'granted') {
         infoForm.removeAttribute('disabled');
@@ -127,10 +157,13 @@
       }
     }
 
+    // مدیریت فرم اطلاعات
     document.getElementById('infoForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
+      // فقط در صورت داشتن اجازه نوتیفیکیشن ادامه بده
       if (Notification.permission === 'granted') {
+        // ایجاد نوتیفیکیشن ماندگار
         const notification = new Notification('عضویت موفقیت‌آمیز!', {
           body: 'برای مشاهده جزئیات بیشتر کلیک کنید.',
           icon: 'https://via.placeholder.com/64',
@@ -138,22 +171,35 @@
           requireInteraction: true
         });
 
+        // وقتی روی نوتیفیکیشن کلیک شد
         notification.onclick = function() {
-          const popup = window.open(
-            notification.data.url,
-            'popupWindow',
-            'width=600,height=400,toolbar=no,menubar=no,location=no,status=no'
-          );
-          if (popup) {
-            setTimeout(() => {
-              popup.close();
-            }, 10000);
+          try {
+            // تلاش برای باز کردن پاپ‌آپ
+            const popup = window.open(
+              notification.data.url,
+              'popupWindow',
+              'width=600,height=400,toolbar=no,menubar=no,location=no,status=no'
+            );
+            if (popup) {
+              setTimeout(() => {
+                popup.close();
+              }, 10000);
+            } else {
+              // در صورت مسدود شدن پاپ‌آپ، به تب جدید هدایت شود
+              window.open(notification.data.url, '_blank');
+            }
+            notification.close();
+          } catch (error) {
+            console.error('خطا در باز کردن پاپ‌آپ:', error);
+            // در صورت خطا، به تب جدید هدایت شود
+            window.open(notification.data.url, '_blank');
           }
-          notification.close();
         };
 
+        // لینک خارجی در تب جدید باز شود
         window.open('https://example.com', '_blank');
 
+        // نمایش پیام و صوت
         document.getElementById('infoForm').style.display = 'none';
         document.getElementById('result').style.display = 'block';
         document.getElementById('audio').play();
@@ -163,12 +209,13 @@
       }
     });
 
+    // تابع بازنشانی
     function resetForm() {
       document.getElementById('infoForm').reset();
       document.getElementById('infoForm').style.display = 'block';
       document.getElementById('result').style.display = 'none';
       document.getElementById('title').style.display = 'block';
-      checkPermission(); 
+      checkPermission();
     }
   </script>
 </body>
